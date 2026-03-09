@@ -19,7 +19,7 @@ export default async function handler(req: any, res: any) {
     }
 
     // 2. Process only the next batch of verses
-    const batchSize = 100;
+    const batchSize = 50;
     const maxAyah = 6236; // Total verses in the Quran
     
     let processedCount = 0;
