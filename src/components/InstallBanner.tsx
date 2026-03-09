@@ -8,9 +8,18 @@ export default function InstallBanner() {
   useEffect(() => {
     const isDismissed = localStorage.getItem('installBannerDismissed');
     
+    // Check if it was already captured globally
+    if ((window as any).deferredPrompt) {
+      setDeferredPrompt((window as any).deferredPrompt);
+      if (!isDismissed) {
+        setShowBanner(true);
+      }
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      (window as any).deferredPrompt = e;
       if (!isDismissed) {
         setShowBanner(true);
       }
@@ -34,6 +43,7 @@ export default function InstallBanner() {
       localStorage.setItem('installBannerDismissed', 'true');
     }
     setDeferredPrompt(null);
+    (window as any).deferredPrompt = null;
   };
 
   const handleDismiss = () => {
