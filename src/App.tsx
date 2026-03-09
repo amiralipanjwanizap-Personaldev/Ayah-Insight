@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote } from 'lucide-react';
+import InstallBanner from './components/InstallBanner';
 
 interface Surah {
   number: number;
@@ -25,7 +26,16 @@ interface Explanation {
 }
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved) {
+        return saved === 'dark';
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
   const [verses, setVerses] = useState<Verse[]>([]);
@@ -44,8 +54,10 @@ export default function App() {
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
 
@@ -114,6 +126,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 text-stone-900 dark:text-stone-100 font-sans transition-colors duration-300 selection:bg-emerald-500/30">
+      <InstallBanner />
       
       {/* Header */}
       <header className="sticky top-0 z-20 bg-stone-50/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-stone-200/60 dark:border-zinc-800/60 px-6 py-4 flex justify-between items-center">
