@@ -10,71 +10,20 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default async function handler(req: any, res: any) {
   try {
-    // 1. Fetch Quran data
-    const quranRes = await fetch("https://api.alquran.cloud/v1/quran/en.asad");
-    const quranData = await quranRes.json();
-
-    if (!quranData || !quranData.data || !quranData.data.surahs) {
-      return res.status(500).json({ error: "Failed to fetch Quran data" });
-    }
-
-    // 2. Flatten the Quran structure
-    const allVerses: { surah_number: number; verse_number: number; translation: string; surah_name: string }[] = [];
+    // 1. Accept a query parameter: start
+    const startParam = req.query?.start || req.body?.start || 1;
+    const start = parseInt(startParam, 10);
     
-    for (const surah of quranData.data.surahs) {
-      for (const ayah of surah.ayahs) {
-        allVerses.push({
-          surah_number: surah.number,
-          verse_number: ayah.numberInSurah,
-          translation: ayah.text,
-          surah_name: surah.englishName
-        });
-      }
+    if (isNaN(start) || start < 1) {
+      return res.status(400).json({ error: "Invalid start parameter" });
     }
 
-    // 3. Query Supabase to find existing verses
-    let existingVerses = new Set<string>();
-    let hasMore = true;
-    let offset = 0;
-    const limit = 1000;
-
-    while (hasMore) {
-      const { data, error } = await supabase
-        .from('verse_insights')
-        .select('surah, verse')
-        .range(offset, offset + limit - 1);
-
-      if (error) {
-        throw error;
-      }
-
-      if (data && data.length > 0) {
-        for (const row of data) {
-          existingVerses.add(`${row.surah}-${row.verse}`);
-        }
-        offset += limit;
-        if (data.length < limit) {
-          hasMore = false;
-        }
-      } else {
-        hasMore = false;
-      }
-    }
-
-    // 4. Identify missing verses
-    const missingVerses = allVerses.filter(v => !existingVerses.has(`${v.surah_number}-${v.verse_number}`));
-
-    // 5. Process a small batch of missing verses
+    // 2. Process only the next batch of verses
     const batchSize = 10;
-    const batch = missingVerses.slice(0, batchSize);
-
-    if (batch.length === 0) {
-      return res.status(200).json({
-        processed: 0,
-        remaining: 0,
-        message: "Batch generation completed"
-      });
-    }
+    const maxAyah = 6236; // Total verses in the Quran
+    
+    let processedCount = 0;
+    let nextStart = start;
 
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
@@ -114,14 +63,49 @@ ahlulbayt_hadith → max 80 words
 
 Return valid JSON only.`;
 
-    let processedCount = 0;
+    for (let i = 0; i < batchSize; i++) {
+      const currentAyahId = start + i;
+      
+      if (currentAyahId > maxAyah) {
+        break;
+      }
+      
+      nextStart = currentAyahId + 1;
 
-    for (const verse of batch) {
       try {
+        // 3. Fetch only the required verse from the Quran API
+        const quranRes = await fetch(`https://api.alquran.cloud/v1/ayah/${currentAyahId}/en.asad`);
+        const quranData = await quranRes.json();
+
+        if (!quranData || !quranData.data) {
+          console.error(`Failed to fetch data for ayah ${currentAyahId}`);
+          continue;
+        }
+
+        const ayahData = quranData.data;
+        const surah_number = ayahData.surah.number;
+        const verse_number = ayahData.numberInSurah;
+        const translation = ayahData.text;
+        const surah_name = ayahData.surah.englishName;
+
+        // 4. Check Supabase for an existing record
+        const { data: existingInsight, error: fetchError } = await supabase
+          .from('verse_insights')
+          .select('id')
+          .eq('surah', surah_number)
+          .eq('verse', verse_number)
+          .single();
+
+        // If it exists -> skip it
+        if (existingInsight) {
+          continue;
+        }
+
+        // If not -> generate insight using OpenAI
         const promptData = {
-          verse_reference: `Surah ${verse.surah_number}, Verse ${verse.verse_number}`,
-          surah_name: verse.surah_name,
-          translation: verse.translation
+          verse_reference: `Surah ${surah_number}, Verse ${verse_number}`,
+          surah_name: surah_name,
+          translation: translation
         };
 
         const completion = await openai.chat.completions.create({
@@ -135,13 +119,13 @@ Return valid JSON only.`;
 
         const result = JSON.parse(completion.choices[0].message.content || "{}");
 
-        // Insert the generated insight into Supabase
+        // 5. Save the generated insight into the verse_insights table
         const { error: insertError } = await supabase
           .from('verse_insights')
           .insert([
             {
-              surah: verse.surah_number,
-              verse: verse.verse_number,
+              surah: surah_number,
+              verse: verse_number,
               historical_context: result.historical_context,
               modern_reflection: result.modern_reflection,
               illustrative_story: result.illustrative_story,
@@ -150,22 +134,22 @@ Return valid JSON only.`;
           ]);
 
         if (insertError) {
-          console.error(`Supabase insert error for Surah ${verse.surah_number} Verse ${verse.verse_number}:`, insertError);
+          console.error(`Supabase insert error for Surah ${surah_number} Verse ${verse_number}:`, insertError);
         } else {
           processedCount++;
         }
       } catch (error) {
-        console.error(`OpenAI or processing error for Surah ${verse.surah_number} Verse ${verse.verse_number}:`, error);
+        console.error(`Error processing ayah ${currentAyahId}:`, error);
       }
 
       // Rate limit protection
       await delay(500);
     }
 
+    // 6. Return response
     res.status(200).json({
       processed: processedCount,
-      remaining: missingVerses.length - processedCount,
-      message: "Batch generation completed"
+      next_start: nextStart > maxAyah ? null : nextStart
     });
 
   } catch (error) {
