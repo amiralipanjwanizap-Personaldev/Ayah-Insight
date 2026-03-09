@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote, Search, Bookmark, BookmarkCheck, PlayCircle } from 'lucide-react';
 import InstallBanner from './components/InstallBanner';
+import Navbar from './components/Navbar';
 
 interface Surah {
   number: number;
@@ -43,7 +44,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   
   // Navigation State
-  const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites'>('home');
+  const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites' | 'search' | 'verse-graph'>('home');
   const [activeVerseNum, setActiveVerseNum] = useState<number | null>(null);
   
   // Explanation State
@@ -230,34 +231,8 @@ export default function App() {
     <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 text-stone-900 dark:text-stone-100 font-sans transition-colors duration-300 selection:bg-emerald-500/30">
       <InstallBanner />
       
-      {/* Header */}
-      <header className="sticky top-0 z-20 bg-stone-50/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-stone-200/60 dark:border-zinc-800/60 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setView('home')}>
-          <div className="p-2 bg-emerald-700 dark:bg-emerald-600 rounded-lg text-white shadow-sm group-hover:shadow-md transition-all">
-            <BookOpen size={20} />
-          </div>
-          <h1 className="text-xl font-serif font-bold tracking-tight text-stone-800 dark:text-stone-100">Ayah Insight</h1>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          {view !== 'home' && (
-            <button 
-              onClick={() => setView('surahs')}
-              className="text-sm font-medium text-stone-500 hover:text-emerald-700 dark:text-zinc-400 dark:hover:text-emerald-500 transition-colors hidden sm:block"
-            >
-              Browse Surahs
-            </button>
-          )}
-          <button 
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-full hover:bg-stone-200 dark:hover:bg-zinc-800 transition-colors text-stone-500 dark:text-zinc-400"
-            aria-label="Toggle Dark Mode"
-          >
-            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-        </div>
-      </header>
-
+      <Navbar setView={setView} darkMode={darkMode} setDarkMode={setDarkMode} />
+      
       <main className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 min-h-[80vh]">
         <AnimatePresence mode="wait">
           
@@ -370,7 +345,21 @@ export default function App() {
             </motion.div>
           )}
 
-          {/* PAGE 2: SURAH LIST */}
+          {/* PAGE 2: SEARCH */}
+          {view === 'search' && (
+            <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <h2 className="text-3xl font-bold">Search Quran</h2>
+            </motion.div>
+          )}
+
+          {/* PAGE 3: VERSE GRAPH */}
+          {view === 'verse-graph' && (
+            <motion.div key="verse-graph" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <h2 className="text-3xl font-bold">Verse Connections</h2>
+            </motion.div>
+          )}
+
+          {/* PAGE 4: SURAH LIST */}
           {view === 'surahs' && (
             <motion.div 
               key="surahs"
