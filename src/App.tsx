@@ -80,19 +80,6 @@ export default function App() {
     setView('reader');
     setExplanation(null);
     
-    // Check database cache first
-    try {
-      const cacheRes = await fetch(`/api/explanation/${selectedSurah?.number}/${verseNum}`);
-      if (cacheRes.ok) {
-        const cachedData = await cacheRes.json();
-        setExplanation(cachedData);
-        return;
-      }
-    } catch (error) {
-      console.error("Cache check failed:", error);
-    }
-
-    // If not in cache, generate it
     generateExplanation(verseNum);
   };
 
@@ -117,19 +104,6 @@ export default function App() {
 
       const result = await response.json();
       setExplanation(result);
-      
-      // Save to database cache
-      await fetch('/api/explanation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          surah: selectedSurah.number,
-          verse: verseNum,
-          historical_context: result.historical_context,
-          modern_reflection: result.modern_reflection,
-          illustrative_story: result.illustrative_story
-        })
-      });
     } catch (error) {
       console.error("Error fetching explanation:", error);
     } finally {
