@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote, Search, Bookmark, BookmarkCheck, PlayCircle } from 'lucide-react';
 import InstallBanner from './components/InstallBanner';
 import Navbar from './components/Navbar';
+import SearchPage from './components/SearchPage';
+import VerseGraphPage from './components/VerseGraphPage';
 
 interface Surah {
   number: number;
