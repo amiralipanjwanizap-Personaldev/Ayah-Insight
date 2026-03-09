@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote } from 'lucide-react';
-import OpenAI from "openai";
 
 interface Surah {
   number: number;
@@ -101,51 +100,22 @@ export default function App() {
     if (!selectedSurah) return;
     setIsGenerating(true);
     try {
-      const openai = new OpenAI({ 
-        apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || "",
-        dangerouslyAllowBrowser: true 
-      });
-      
-      const promptData = {
-        verse_reference: `Surah ${selectedSurah.number}, Verse ${verseNum}`,
-        surah_name: selectedSurah.englishName,
-        translation: translations[verseNum - 1]?.text || ""
-      };
-
-      const systemInstruction = `You are an Islamic education assistant providing historically grounded explanations of Quranic verses.
-
-Important rule:
-Never generate or modify Quran text.
-The Quran text and translation are already provided by the database.
-
-Generate three sections.
-historical_context: Explain the historical background of the verse if known.
-modern_reflection: Explain how the verse applies to life today.
-illustrative_story: Write a short relatable story illustrating the lesson.
-
-Rules:
-• respectful tone
-• neutral academic style
-• avoid sectarian bias
-• avoid political commentary
-
-Length limits:
-historical_context → max 120 words
-modern_reflection → max 120 words
-illustrative_story → max 150 words
-
-Return JSON only.`;
-
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemInstruction },
-          { role: "user", content: JSON.stringify(promptData) }
-        ],
-        response_format: { type: "json_object" }
+      const response = await fetch('/api/generate-insight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          surah: selectedSurah.number,
+          verse: verseNum,
+          translation: translations[verseNum - 1]?.text || "",
+          surah_name: selectedSurah.englishName
+        })
       });
 
-      const result = JSON.parse(completion.choices[0].message.content || "{}");
+      if (!response.ok) {
+        throw new Error('Failed to generate insight');
+      }
+
+      const result = await response.json();
       setExplanation(result);
       
       // Save to database cache

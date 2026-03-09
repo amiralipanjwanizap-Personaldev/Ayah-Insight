@@ -2,6 +2,7 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import dotenv from "dotenv";
+import OpenAI from "openai";
 
 dotenv.config();
 
@@ -74,6 +75,62 @@ app.post("/api/explanation", (req, res) => {
   } catch (error) {
     console.error("Save error:", error);
     res.status(500).json({ error: "Failed to save to database" });
+  }
+});
+
+// POST endpoint to generate insight using OpenAI
+app.post("/api/generate-insight", async (req, res) => {
+  const { surah, verse, translation, surah_name } = req.body;
+
+  try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+
+    const promptData = {
+      verse_reference: `Surah ${surah}, Verse ${verse}`,
+      surah_name: surah_name,
+      translation: translation
+    };
+
+    const systemInstruction = `You are an Islamic education assistant providing historically grounded explanations of Quranic verses.
+
+Important rule:
+Never generate or modify Quran text.
+The Quran text and translation are already provided by the database.
+
+Generate three sections.
+historical_context: Explain the historical background of the verse if known.
+modern_reflection: Explain how the verse applies to life today.
+illustrative_story: Write a short relatable story illustrating the lesson.
+
+Rules:
+• respectful tone
+• neutral academic style
+• avoid sectarian bias
+• avoid political commentary
+
+Length limits:
+historical_context → max 120 words
+modern_reflection → max 120 words
+illustrative_story → max 150 words
+
+Return JSON only.`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemInstruction },
+        { role: "user", content: JSON.stringify(promptData) }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const result = JSON.parse(completion.choices[0].message.content || "{}");
+    res.json(result);
+  } catch (error) {
+    console.error("OpenAI error:", error);
+    res.status(500).json({ error: "Failed to generate insight" });
   }
 });
 
