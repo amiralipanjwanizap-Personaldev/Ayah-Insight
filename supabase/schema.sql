@@ -13,9 +13,9 @@ create table if not exists verse_embeddings (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Index for fast vector search (cosine similarity)
-create index if not exists idx_verse_embeddings_vector on verse_embeddings using ivfflat (embedding vector_cosine_ops)
-with (lists = 100);
+-- NOTE: The ivfflat index has been removed because pgvector indexes have a limit of 2000 dimensions.
+-- Since the Quran only has 6,236 verses, an index is not needed. 
+-- Exact search (sequential scan) will be extremely fast for this dataset size.
 
 -- Table for verse relationships
 create table if not exists verse_relationships (
