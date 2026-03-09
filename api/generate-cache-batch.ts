@@ -19,7 +19,7 @@ export default async function handler(req: any, res: any) {
     }
 
     // 2. Process only the next batch of verses
-    const batchSize = 10;
+    const batchSize = 100;
     const maxAyah = 6236; // Total verses in the Quran
     
     let processedCount = 0;
@@ -56,10 +56,10 @@ The ahlulbayt_hadith field should provide a short teaching, saying, or wisdom at
 
 Word limits:
 
-historical_context → max 120 words
-modern_reflection → max 120 words
-illustrative_story → max 150 words
-ahlulbayt_hadith → max 80 words
+historical_context → max 200 words
+modern_reflection → max 200 words
+illustrative_story → max 200 words
+ahlulbayt_hadith → max 200 words
 
 Return valid JSON only.`;
 
