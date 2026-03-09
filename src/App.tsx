@@ -21,6 +21,7 @@ interface Explanation {
   historical_context: string;
   modern_reflection: string;
   illustrative_story: string;
+  ahlulbayt_hadith?: string;
 }
 
 export default function App() {
@@ -316,7 +317,7 @@ export default function App() {
                             {verse.numberInSurah}
                           </span>
                         </p>
-                        <p className="text-stone-600 dark:text-zinc-300 italic font-serif text-lg leading-relaxed">
+                        <p className="text-stone-600 dark:text-zinc-300 font-serif text-lg leading-loose">
                           {translations[idx]?.text}
                         </p>
                         <div className="mt-4 flex justify-end">
@@ -379,7 +380,7 @@ export default function App() {
                   <hr className="border-stone-100 dark:border-zinc-800" />
                   
                   <div>
-                    <p className="text-xl sm:text-2xl leading-relaxed text-stone-800 dark:text-zinc-300 font-serif italic">
+                    <p className="text-xl sm:text-2xl leading-loose text-stone-800 dark:text-zinc-300 font-serif">
                       "{translations[activeVerseNum - 1]?.text}"
                     </p>
                   </div>
@@ -432,10 +433,23 @@ export default function App() {
                         <Book size={24} />
                         <h3 className="text-lg font-bold tracking-wide">Illustrative Story</h3>
                       </div>
-                      <p className="text-stone-800 dark:text-zinc-200 leading-relaxed text-lg italic font-serif">
+                      <p className="text-stone-800 dark:text-zinc-200 leading-loose text-lg font-serif">
                         "{explanation.illustrative_story}"
                       </p>
                     </div>
+
+                    {/* Ahlul Bayt Reflection Card */}
+                    {explanation.ahlulbayt_hadith && (
+                      <div className="bg-rose-50/50 dark:bg-rose-950/20 rounded-3xl p-8 sm:p-10 border border-rose-100/50 dark:border-rose-900/30">
+                        <div className="flex items-center gap-3 mb-6 text-rose-700 dark:text-rose-400">
+                          <Quote size={24} />
+                          <h3 className="text-lg font-bold tracking-wide">Ahlul Bayt Reflection</h3>
+                        </div>
+                        <p className="text-stone-800 dark:text-zinc-200 leading-loose text-lg font-serif">
+                          "{explanation.ahlulbayt_hadith}"
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-white dark:bg-zinc-900 rounded-[2rem] shadow-sm border border-stone-200/60 dark:border-zinc-800 p-12 text-center">
