@@ -42,7 +42,7 @@ app.get("/api/explanation/:surah/:verse", (req, res) => {
       res.json({
         historical_context: context.historical_context,
         modern_reflection: reflection.modern_lesson,
-        short_story: story.story_text
+        illustrative_story: story.story_text
       });
     } else {
       res.status(404).json({ error: "Not found in cache" });
@@ -54,7 +54,7 @@ app.get("/api/explanation/:surah/:verse", (req, res) => {
 
 // POST endpoint to save to cache
 app.post("/api/explanation", (req, res) => {
-  const { surah, verse, historical_context, modern_reflection, short_story } = req.body;
+  const { surah, verse, historical_context, modern_reflection, illustrative_story } = req.body;
   const verse_id = `${surah}-${verse}`;
 
   try {
@@ -66,7 +66,7 @@ app.post("/api/explanation", (req, res) => {
     const insertMany = db.transaction(() => {
       insertContext.run(verse_id, historical_context);
       insertReflection.run(verse_id, modern_reflection);
-      insertStory.run(verse_id, short_story);
+      insertStory.run(verse_id, illustrative_story);
     });
     
     insertMany();

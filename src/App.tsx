@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote } from 'lucide-react';
-import { GoogleGenAI, Type } from "@google/genai";
+import OpenAI from "openai";
 
 interface Surah {
   number: number;
@@ -21,7 +21,7 @@ interface Verse {
 interface Explanation {
   historical_context: string;
   modern_reflection: string;
-  short_story: string;
+  illustrative_story: string;
 }
 
 export default function App() {
@@ -101,7 +101,10 @@ export default function App() {
     if (!selectedSurah) return;
     setIsGenerating(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+      const openai = new OpenAI({ 
+        apiKey: process.env.OPENAI_API_KEY || "",
+        dangerouslyAllowBrowser: true 
+      });
       
       const promptData = {
         verse_reference: `Surah ${selectedSurah.number}, Verse ${verseNum}`,
@@ -109,8 +112,7 @@ export default function App() {
         translation: translations[verseNum - 1]?.text || ""
       };
 
-      const systemInstruction = `You are an Islamic education assistant.
-Your job is to generate explanation content for a Quran verse.
+      const systemInstruction = `You are an Islamic education assistant providing historically grounded explanations of Quranic verses.
 
 Important rule:
 Never generate or modify Quran text.
@@ -119,7 +121,7 @@ The Quran text and translation are already provided by the database.
 Generate three sections.
 historical_context: Explain the historical background of the verse if known.
 modern_reflection: Explain how the verse applies to life today.
-short_story: Write a short relatable story illustrating the lesson.
+illustrative_story: Write a short relatable story illustrating the lesson.
 
 Rules:
 • respectful tone
@@ -130,29 +132,20 @@ Rules:
 Length limits:
 historical_context → max 120 words
 modern_reflection → max 120 words
-short_story → max 150 words
+illustrative_story → max 150 words
 
 Return JSON only.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: JSON.stringify(promptData),
-        config: {
-          systemInstruction: systemInstruction,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              historical_context: { type: Type.STRING },
-              modern_reflection: { type: Type.STRING },
-              short_story: { type: Type.STRING },
-            },
-            required: ["historical_context", "modern_reflection", "short_story"],
-          },
-        },
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemInstruction },
+          { role: "user", content: JSON.stringify(promptData) }
+        ],
+        response_format: { type: "json_object" }
       });
 
-      const result = JSON.parse(response.text);
+      const result = JSON.parse(completion.choices[0].message.content || "{}");
       setExplanation(result);
       
       // Save to database cache
@@ -164,7 +157,7 @@ Return JSON only.`;
           verse: verseNum,
           historical_context: result.historical_context,
           modern_reflection: result.modern_reflection,
-          short_story: result.short_story
+          illustrative_story: result.illustrative_story
         })
       });
     } catch (error) {
@@ -496,7 +489,7 @@ Return JSON only.`;
                         <h3 className="text-lg font-bold tracking-wide">Illustrative Story</h3>
                       </div>
                       <p className="text-stone-800 dark:text-zinc-200 leading-relaxed text-lg italic font-serif">
-                        "{explanation.short_story}"
+                        "{explanation.illustrative_story}"
                       </p>
                     </div>
                   </div>
