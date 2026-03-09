@@ -9,6 +9,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
   (window as any).deferredPrompt = e;
 });
 
+// Temporarily disabled service worker to debug blank screen issue
+/*
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch(err => {
@@ -16,6 +18,7 @@ if ("serviceWorker" in navigator) {
     });
   });
 }
+*/
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
