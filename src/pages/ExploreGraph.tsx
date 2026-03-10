@@ -4,16 +4,16 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 
 interface ExploreGraphProps {
   onBack?: () => void;
+  theme?: string | null;
 }
 
-export default function ExploreGraph({ onBack }: ExploreGraphProps) {
+export default function ExploreGraph({ onBack, theme }: ExploreGraphProps) {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // 3. Read theme from the URL
-  const params = new URLSearchParams(window.location.search);
-  const selectedTheme = params.get("theme");
+  const selectedTheme = theme;
 
   useEffect(() => {
     // 2. Fetch graph data from /api/graph-data

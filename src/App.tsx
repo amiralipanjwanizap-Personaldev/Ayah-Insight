@@ -46,6 +46,7 @@ export default function App() {
   
   // Navigation State
   const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites' | 'themes' | 'explore'>('home');
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
   const [activeVerseNum, setActiveVerseNum] = useState<number | null>(null);
   
   // Explanation State
@@ -719,12 +720,21 @@ export default function App() {
 
           {/* PAGE 5: THEMES */}
           {view === 'themes' && (
-            <Themes onBack={() => setView('home')} />
+            <Themes
+              onBack={() => setView('home')}
+              onExplore={(theme) => {
+                setSelectedTheme(theme);
+                setView('explore');
+              }}
+            />
           )}
 
           {/* PAGE 6: EXPLORE GRAPH */}
           {view === 'explore' && (
-            <ExploreGraph onBack={() => setView('themes')} />
+            <ExploreGraph
+              onBack={() => setView('themes')}
+              theme={selectedTheme}
+            />
           )}
         </AnimatePresence>
       </main>
