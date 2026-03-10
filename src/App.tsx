@@ -719,13 +719,7 @@ export default function App() {
 
           {/* PAGE 5: THEMES */}
           {view === 'themes' && (
-            <Themes
-              onBack={() => setView('home')}
-              onExplore={(theme) => {
-                window.history.pushState({}, "", "/explore?theme=" + encodeURIComponent(theme));
-                setView('explore');
-              }}
-            />
+            <Themes onBack={() => setView('home')} />
           )}
 
           {/* PAGE 6: EXPLORE GRAPH */}
