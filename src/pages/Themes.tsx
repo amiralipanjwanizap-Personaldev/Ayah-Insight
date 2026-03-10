@@ -133,7 +133,8 @@ export default function Themes({ onBack }: ThemesProps) {
           {themes.map((theme) => (
             <div
               key={theme.id}
-              className="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-stone-200/60 dark:border-zinc-800 hover:border-emerald-300 dark:hover:border-emerald-700/50 transition-colors flex flex-col h-full group"
+              onClick={() => window.location.href = `/explore?theme=${encodeURIComponent(theme.name)}`}
+              className="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-stone-200/60 dark:border-zinc-800 hover:border-emerald-300 dark:hover:border-emerald-700/50 transition-colors flex flex-col h-full group"
             >
               <h3 className="text-xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-3 group-hover:text-emerald-700 dark:group-hover:text-emerald-500 transition-colors">
                 {theme.name}
