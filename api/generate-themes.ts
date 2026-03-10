@@ -14,11 +14,11 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // 1. Fetch up to 500 records from verse_insights
+    // 1. Fetch up to 100 records from verse_insights
     const { data: insights, error: fetchError } = await supabase
       .from('verse_insights')
       .select('historical_context, modern_reflection, illustrative_story, ahlulbayt_hadith')
-      .limit(500);
+      .limit(100);
 
     if (fetchError) {
       console.error('Error fetching insights:', fetchError);
