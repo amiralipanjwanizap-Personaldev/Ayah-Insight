@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote, Search, Bookmark, BookmarkCheck, PlayCircle } from 'lucide-react';
 import InstallBanner from './components/InstallBanner';
+import Themes from './pages/Themes';
 
 interface Surah {
   number: number;
@@ -43,7 +44,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   
   // Navigation State
-  const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites'>('home');
+  const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites' | 'themes'>('home');
   const [activeVerseNum, setActiveVerseNum] = useState<number | null>(null);
   
   // Explanation State
@@ -284,6 +285,12 @@ export default function App() {
                     className="w-full sm:w-auto inline-flex justify-center items-center gap-2 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-medium transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                   >
                     Begin Reading <ArrowRight size={18} />
+                  </button>
+                  <button 
+                    onClick={() => setView('themes')}
+                    className="w-full sm:w-auto inline-flex justify-center items-center gap-2 bg-indigo-700 hover:bg-indigo-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white px-8 py-4 rounded-full font-medium transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                  >
+                    <Sparkles size={18} /> Explore Themes
                   </button>
                   {favorites.length > 0 && (
                     <button 
@@ -707,6 +714,11 @@ export default function App() {
                 </div>
               )}
             </motion.div>
+          )}
+
+          {/* PAGE 5: THEMES */}
+          {view === 'themes' && (
+            <Themes onBack={() => setView('home')} />
           )}
         </AnimatePresence>
       </main>
