@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote, Search, Bookmark, BookmarkCheck, PlayCircle } from 'lucide-react';
 import InstallBanner from './components/InstallBanner';
 import Themes from './pages/Themes';
+import ExploreGraph from "./pages/ExploreGraph";
 
 interface Surah {
   number: number;
@@ -44,7 +45,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   
   // Navigation State
-  const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites' | 'themes'>('home');
+  const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites' | 'themes' | 'explore'>('home');
   const [activeVerseNum, setActiveVerseNum] = useState<number | null>(null);
   
   // Explanation State
@@ -718,7 +719,18 @@ export default function App() {
 
           {/* PAGE 5: THEMES */}
           {view === 'themes' && (
-            <Themes onBack={() => setView('home')} />
+            <Themes
+              onBack={() => setView('home')}
+              onExplore={(theme) => {
+                window.history.pushState({}, "", "/explore?theme=" + encodeURIComponent(theme));
+                setView('explore');
+              }}
+            />
+          )}
+
+          {/* PAGE 6: EXPLORE GRAPH */}
+          {view === 'explore' && (
+            <ExploreGraph onBack={() => setView('themes')} />
           )}
         </AnimatePresence>
       </main>

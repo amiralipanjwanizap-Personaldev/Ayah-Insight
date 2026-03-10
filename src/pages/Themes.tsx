@@ -11,9 +11,10 @@ interface Theme {
 
 interface ThemesProps {
   onBack: () => void;
+  onExplore?: (theme: string) => void;
 }
 
-export default function Themes({ onBack }: ThemesProps) {
+export default function Themes({ onBack, onExplore }: ThemesProps) {
   const [themes, setThemes] = useState<Theme[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -131,10 +132,10 @@ export default function Themes({ onBack }: ThemesProps) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {themes.map((theme) => (
-            <div
+            <button
               key={theme.id}
-              onClick={() => window.location.href = `/explore?theme=${encodeURIComponent(theme.name)}`}
-              className="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-stone-200/60 dark:border-zinc-800 hover:border-emerald-300 dark:hover:border-emerald-700/50 transition-colors flex flex-col h-full group"
+              onClick={() => onExplore && onExplore(theme.name)}
+              className="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-stone-200/60 dark:border-zinc-800 hover:border-emerald-300 dark:hover:border-emerald-700/50 transition-colors flex flex-col h-full group text-left"
             >
               <h3 className="text-xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-3 group-hover:text-emerald-700 dark:group-hover:text-emerald-500 transition-colors">
                 {theme.name}
@@ -142,7 +143,7 @@ export default function Themes({ onBack }: ThemesProps) {
               <p className="text-stone-600 dark:text-zinc-400 leading-relaxed flex-grow">
                 {theme.description}
               </p>
-            </div>
+            </button>
           ))}
         </div>
       )}
