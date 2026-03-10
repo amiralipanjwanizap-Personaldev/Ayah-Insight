@@ -1,5 +1,5 @@
-const { createClient } = require('@supabase/supabase-js');
-const OpenAI = require('openai');
+import { createClient } from '@supabase/supabase-js';
+import OpenAI from 'openai';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -8,7 +8,7 @@ const openaiKey = process.env.OPENAI_API_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 const openai = new OpenAI({ apiKey: openaiKey });
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
