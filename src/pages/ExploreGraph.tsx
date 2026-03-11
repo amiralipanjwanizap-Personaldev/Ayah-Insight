@@ -21,7 +21,8 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
     const fetchGraphData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/graph-data');
+        const url = selectedTheme ? `/api/graph-data?theme=${encodeURIComponent(selectedTheme)}` : '/api/graph-data';
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error('Failed to fetch graph data');
         }

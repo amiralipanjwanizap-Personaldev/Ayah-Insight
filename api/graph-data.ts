@@ -11,10 +11,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 3. Fetch the first 10 themes from table: themes
-    const { data: themes, error: themesError } = await supabase
-      .from('themes')
-      .select('id, name');
+    const requestedTheme = req.query.theme;
+    let themeQuery = supabase.from('themes').select('id, name');
+    
+    if (requestedTheme) {
+      themeQuery = themeQuery.ilike('name', requestedTheme);
+    }
+
+    // 3. Fetch themes
+    const { data: themes, error: themesError } = await themeQuery;
 
     if (themesError) {
       console.error('Error fetching themes:', themesError);
