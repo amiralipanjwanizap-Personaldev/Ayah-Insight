@@ -14,8 +14,7 @@ export default async function handler(req, res) {
     // 3. Fetch the first 10 themes from table: themes
     const { data: themes, error: themesError } = await supabase
       .from('themes')
-      .select('id, name')
-      .limit(10);
+      .select('id, name');
 
     if (themesError) {
       console.error('Error fetching themes:', themesError);
