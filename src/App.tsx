@@ -52,6 +52,7 @@ export default function App() {
   // Explanation State
   const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [themes, setThemes] = useState<string[]>([]);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -194,6 +195,7 @@ export default function App() {
     }
 
     generateExplanation(verseNum);
+    fetchThemes(selectedSurah.number, verseNum);
   };
 
   const jumpToVerse = async (surahNum: number, verseNum: number) => {
@@ -241,6 +243,7 @@ export default function App() {
       if (!response.ok) throw new Error('Failed to generate insight');
       const result = await response.json();
       setExplanation(result);
+      fetchThemes(surahNum, verseNum);
     } catch (error) {
       console.error("Error fetching verses or explanation:", error);
     } finally {
@@ -292,6 +295,18 @@ export default function App() {
       console.error("Error fetching explanation:", error);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const fetchThemes = async (surah: number, verse: number) => {
+    try {
+      const response = await fetch(`/api/verse-themes?surah=${surah}&verse=${verse}`);
+      if (!response.ok) throw new Error('Failed to fetch themes');
+      const data = await response.json();
+      setThemes(data.themes);
+    } catch (error) {
+      console.error("Error fetching themes:", error);
+      setThemes([]);
     }
   };
 
@@ -718,6 +733,20 @@ export default function App() {
                   </div>
                 </div>
               </section>
+
+              {/* Themes Section */}
+              {themes.length > 0 && (
+                <section className="space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-stone-500 dark:text-zinc-400">Themes</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {themes.map(theme => (
+                      <span key={theme} className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 rounded-full text-sm font-medium">
+                        {theme}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* SECTION 2: Verse Insight */}
               <section className="space-y-8 pt-8">
