@@ -38,6 +38,16 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
     fetchGraphData();
   }, []);
 
+  const fgRef = React.useRef<any>();
+
+  useEffect(() => {
+    if (fgRef.current && graphData.nodes.length > 0) {
+      setTimeout(() => {
+        fgRef.current.zoomToFit(400);
+      }, 500);
+    }
+  }, [graphData]);
+
   const handleNodeClick = (node: any) => {
     if (node.type === 'verse' && onOpenVerse) {
       const [surah, verse] = node.id.split(":").map(Number);
@@ -88,7 +98,13 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
           </div>
         ) : (
           <ForceGraph2D
+            ref={fgRef}
             graphData={graphData}
+            linkColor={() => "#334155"}
+            linkWidth={1.5}
+            linkDirectionalParticles={0}
+            d3AlphaDecay={0.03}
+            d3VelocityDecay={0.4}
             nodeLabel={(node: any) => {
               if (node.type === "theme") {
                 return `Theme: ${node.id}`;
@@ -125,7 +141,7 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
             enableNodeDrag={true}
             enableZoomInteraction={true}
             enablePanInteraction={true}
-            cooldownTicks={100}
+            cooldownTicks={150}
           />
         )}
       </div>
