@@ -89,7 +89,20 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
         ) : (
           <ForceGraph2D
             graphData={graphData}
-            nodeLabel={(node: any) => node.id}
+            nodeLabel={(node: any) => {
+              if (node.type === "theme") {
+                return `Theme: ${node.id}`;
+              }
+
+              if (node.type === "verse") {
+                const surahName = node.surah_name || "";
+                const preview = node.translation_preview || "";
+
+                return `${surahName} ${node.id}\n"${preview}..."`;
+              }
+
+              return node.id;
+            }}
             nodeColor={(node: any) => {
               if (node.id === selectedTheme) return "#22c55e";
               return node.type === "theme" ? "#10b981" : "#94a3b8";
