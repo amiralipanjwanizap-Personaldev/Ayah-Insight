@@ -53,8 +53,8 @@ export default async function handler(req, res) {
       offset += limit;
     }
 
-    // 6. Process 150 verses per request
-    unmappedInsights = unmappedInsights.slice(0, 150);
+    // 6. Process 200 verses per request
+    unmappedInsights = unmappedInsights.slice(0, 200);
 
     if (unmappedInsights.length === 0) {
       return res.status(200).json({ processed: 0 });
