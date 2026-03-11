@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
     const themeNamesList = themes.map(t => `- ${t.name}: ${t.description}`).join('\n');
 
-    // 1. Fetch 10 records from verse_insights that do NOT already exist in verse_theme_map
+    // 1. Fetch 100 records from verse_insights that do NOT already exist in verse_theme_map
     // First, fetch mapped verses to know what to exclude
     const { data: mappedVerses, error: mappedError } = await supabase
       .from('verse_theme_map')
@@ -37,8 +37,8 @@ export default async function handler(req, res) {
     let offset = 0;
     const limit = 100;
 
-    // Fetch in batches until we have 10 unmapped insights
-    while (unmappedInsights.length < 10) {
+    // Fetch in batches until we have 100 unmapped insights
+    while (unmappedInsights.length < 100) {
       const { data: insights, error: insightsError } = await supabase
         .from('verse_insights')
         .select('surah, verse, historical_context, modern_reflection, illustrative_story, ahlulbayt_hadith')
