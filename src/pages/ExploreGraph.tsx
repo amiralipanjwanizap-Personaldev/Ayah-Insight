@@ -95,10 +95,8 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
               }
 
               if (node.type === "verse") {
-                const surahName = node.surah_name || "";
-                const preview = node.translation_preview || "";
-
-                return `${surahName} ${node.id}\n"${preview}..."`;
+                const [surah, verse] = node.id.split(":");
+                return `Surah ${surah} Verse ${verse} — Tap to open`;
               }
 
               return node.id;
