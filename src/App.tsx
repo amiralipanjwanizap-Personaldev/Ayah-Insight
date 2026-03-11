@@ -734,6 +734,9 @@ export default function App() {
             <ExploreGraph
               onBack={() => setView('themes')}
               theme={selectedTheme}
+              onOpenVerse={(surah, verse) => {
+                jumpToVerse(surah, verse);
+              }}
             />
           )}
         </AnimatePresence>
