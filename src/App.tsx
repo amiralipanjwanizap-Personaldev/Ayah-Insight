@@ -85,6 +85,24 @@ export default function App() {
     }
   }, [darkMode]);
 
+  // Scroll Management
+  useEffect(() => {
+    if (view === "surahs") {
+      const savedPosition = sessionStorage.getItem("surahScrollPosition");
+      if (savedPosition) {
+        window.scrollTo({
+          top: Number(savedPosition),
+          behavior: "instant"
+        });
+      }
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: "instant"
+      });
+    }
+  }, [view]);
+
   // Fetch Surahs on load
   useEffect(() => {
     fetch('https://api.alquran.cloud/v1/surah')
@@ -93,6 +111,7 @@ export default function App() {
   }, []);
 
   const selectSurah = async (surah: Surah) => {
+    sessionStorage.setItem("surahScrollPosition", String(window.scrollY));
     setSelectedSurah(surah);
     setView('verses');
     setLoading(true);
