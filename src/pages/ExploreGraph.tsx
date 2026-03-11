@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, ChevronDown } from 'lucide-react';
 
 interface ExploreGraphProps {
   onBack?: () => void;
@@ -11,6 +11,7 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedSurahs, setExpandedSurahs] = useState<Set<string>>(new Set());
 
   // 3. Read theme from the URL
   const selectedTheme = theme;
@@ -43,6 +44,16 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
     } else {
       window.history.back();
     }
+  };
+
+  const toggleSurah = (surah: string) => {
+    const next = new Set(expandedSurahs);
+    if (next.has(surah)) {
+      next.delete(surah);
+    } else {
+      next.add(surah);
+    }
+    setExpandedSurahs(next);
   };
 
   const filteredLinks = graphData.links.filter((link: any) => link.source === selectedTheme);
@@ -89,37 +100,43 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
         <div className="mt-8">
           {Object.entries(groupedBySurah).map(([surah, verses]) => (
             <div key={surah} className="mb-6">
-              <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-stone-200 dark:border-zinc-800">
+              <button 
+                onClick={() => toggleSurah(surah)}
+                className="w-full bg-white dark:bg-zinc-900 p-4 rounded-xl border border-stone-200 dark:border-zinc-800 flex justify-between items-center hover:border-emerald-500 transition-colors"
+              >
                 <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
                   Surah {surah} ({verses.length} verses)
                 </h3>
-              </div>
+                <ChevronDown className={`transition-transform text-stone-500 ${expandedSurahs.has(surah) ? 'rotate-180' : ''}`} />
+              </button>
 
-              <div className="mt-3 grid gap-3">
-                {verses.map((verse) => (
-                  <div
-                    key={verse}
-                    className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-stone-200 dark:border-zinc-800 flex justify-between items-center"
-                  >
-                    <span className="text-stone-700 dark:text-zinc-300">
-                      Verse {verse}
-                    </span>
-
-                    <button
-                      onClick={() => {
-                        if (onOpenVerse) onOpenVerse(Number(surah), Number(verse));
-                        const event = new CustomEvent("openVerse", {
-                          detail: { surah: Number(surah), verse: Number(verse) }
-                        });
-                        window.dispatchEvent(event);
-                      }}
-                      className="text-emerald-600 hover:text-emerald-500"
+              {expandedSurahs.has(surah) && (
+                <div className="mt-3 grid gap-3">
+                  {verses.map((verse) => (
+                    <div
+                      key={verse}
+                      className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-stone-200 dark:border-zinc-800 flex justify-between items-center"
                     >
-                      Open
-                    </button>
-                  </div>
-                ))}
-              </div>
+                      <span className="text-stone-700 dark:text-zinc-300">
+                        Verse {verse}
+                      </span>
+
+                      <button
+                        onClick={() => {
+                          if (onOpenVerse) onOpenVerse(Number(surah), Number(verse));
+                          const event = new CustomEvent("openVerse", {
+                            detail: { surah: Number(surah), verse: Number(verse) }
+                          });
+                          window.dispatchEvent(event);
+                        }}
+                        className="text-emerald-600 hover:text-emerald-500"
+                      >
+                        Open
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
