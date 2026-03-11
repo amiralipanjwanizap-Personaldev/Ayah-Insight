@@ -32,8 +32,7 @@ export default async function handler(req, res) {
     // 4. Fetch verse mappings from verse_theme_map where theme_id exists in the selected themes
     const { data: mappings, error: mappingsError } = await supabase
       .from('verse_theme_map')
-      .select('theme_id, surah, verse, surah_name, translation')
-      .in('theme_id', themeIds);
+      .select('theme_id, surah, verse');
 
     if (mappingsError) {
       console.error('Error fetching mappings:', mappingsError);
@@ -64,11 +63,7 @@ export default async function handler(req, res) {
           verseSet.add(verseId);
           nodes.push({
             id: verseId,
-            type: 'verse',
-            surah: mapping.surah,
-            verse: mapping.verse,
-            surah_name: mapping.surah_name || "",
-            translation_preview: (mapping.translation || "").slice(0,120)
+            type: 'verse'
           });
         }
 
