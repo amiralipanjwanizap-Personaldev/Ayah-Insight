@@ -88,24 +88,6 @@ export default function Themes({ onBack, onExplore }: ThemesProps) {
             AI-generated core concepts based on verse insights.
           </p>
         </div>
-        
-        <button
-          onClick={generateThemes}
-          disabled={generating}
-          className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-6 py-3 rounded-full font-medium transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {generating ? (
-            <>
-              <Loader2 size={18} className="animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <RefreshCw size={18} />
-              Generate Themes
-            </>
-          )}
-        </button>
       </div>
 
       {error && (
