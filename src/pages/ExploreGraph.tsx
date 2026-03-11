@@ -45,9 +45,17 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
     }
   };
 
-  const relatedVerses = graphData.links
-    .filter((link: any) => link.source === selectedTheme)
-    .map((link: any) => link.target);
+  const filteredLinks = graphData.links.filter((link: any) => link.source === selectedTheme);
+  
+  const groupedBySurah: Record<string, number[]> = {};
+
+  filteredLinks.forEach((link: any) => {
+    const [surah, verse] = link.target.split(":");
+    if (!groupedBySurah[surah]) {
+      groupedBySurah[surah] = [];
+    }
+    groupedBySurah[surah].push(Number(verse));
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -78,39 +86,42 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
           {error}
         </div>
       ) : (
-        <div className="grid gap-4 mt-8">
-          {relatedVerses.map((verseId: string) => {
-            const [surah, verse] = verseId.split(":");
-
-            return (
-              <div
-                key={verseId}
-                className="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-stone-200 dark:border-zinc-800 flex justify-between items-center"
-              >
-                <div>
-                  <h3 className="text-lg font-serif font-bold text-stone-900 dark:text-stone-100">
-                    Surah {surah} : Verse {verse}
-                  </h3>
-                  <p className="text-sm text-stone-500 dark:text-zinc-400">
-                    Tap to open verse reader
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => {
-                    if (onOpenVerse) onOpenVerse(Number(surah), Number(verse));
-                    const event = new CustomEvent("openVerse", {
-                      detail: { surah: Number(surah), verse: Number(verse) }
-                    });
-                    window.dispatchEvent(event);
-                  }}
-                  className="text-emerald-600 font-medium hover:underline"
-                >
-                  Open
-                </button>
+        <div className="mt-8">
+          {Object.entries(groupedBySurah).map(([surah, verses]) => (
+            <div key={surah} className="mb-6">
+              <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-stone-200 dark:border-zinc-800">
+                <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
+                  Surah {surah} ({verses.length} verses)
+                </h3>
               </div>
-            );
-          })}
+
+              <div className="mt-3 grid gap-3">
+                {verses.map((verse) => (
+                  <div
+                    key={verse}
+                    className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-stone-200 dark:border-zinc-800 flex justify-between items-center"
+                  >
+                    <span className="text-stone-700 dark:text-zinc-300">
+                      Verse {verse}
+                    </span>
+
+                    <button
+                      onClick={() => {
+                        if (onOpenVerse) onOpenVerse(Number(surah), Number(verse));
+                        const event = new CustomEvent("openVerse", {
+                          detail: { surah: Number(surah), verse: Number(verse) }
+                        });
+                        window.dispatchEvent(event);
+                      }}
+                      className="text-emerald-600 hover:text-emerald-500"
+                    >
+                      Open
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
