@@ -56,7 +56,7 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
     setExpandedSurahs(next);
   };
 
-  const filteredLinks = graphData.links.filter((link: any) => link.source === selectedTheme);
+  const filteredLinks = graphData.links.filter((link: any) => link.source.trim().toLowerCase() === (selectedTheme ? selectedTheme.trim().toLowerCase() : ''));
   
   const groupedBySurah: Record<string, number[]> = {};
 
