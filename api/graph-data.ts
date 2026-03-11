@@ -32,7 +32,8 @@ export default async function handler(req, res) {
     const { data: mappings, error: mappingsError } = await supabase
       .from('verse_theme_map')
       .select('theme_id, surah, verse')
-      .in('theme_id', themeIds);
+      .in('theme_id', themeIds)
+      .limit(10000);
 
     if (mappingsError) {
       console.error('Error fetching mappings:', mappingsError);
