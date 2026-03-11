@@ -32,7 +32,8 @@ export default async function handler(req, res) {
     // 4. Fetch verse mappings from verse_theme_map where theme_id exists in the selected themes
     const { data: mappings, error: mappingsError } = await supabase
       .from('verse_theme_map')
-      .select('theme_id, surah, verse');
+      .select('theme_id, surah, verse')
+      .in('theme_id', themeIds);
 
     if (mappingsError) {
       console.error('Error fetching mappings:', mappingsError);
