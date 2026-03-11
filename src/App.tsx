@@ -242,15 +242,25 @@ export default function App() {
           <h1 className="text-xl font-serif font-bold tracking-tight text-stone-800 dark:text-stone-100">Ayah Insight</h1>
         </div>
         
-        <div className="flex items-center gap-4">
-          {view !== 'home' && (
-            <button 
-              onClick={() => setView('surahs')}
-              className="text-sm font-medium text-stone-500 hover:text-emerald-700 dark:text-zinc-400 dark:hover:text-emerald-500 transition-colors hidden sm:block"
-            >
-              Browse Surahs
-            </button>
-          )}
+        <div className="flex items-center gap-6">
+          <button 
+            onClick={() => setView('home')}
+            className="text-sm font-medium text-stone-500 hover:text-emerald-700 dark:text-zinc-400 dark:hover:text-emerald-500 transition-colors"
+          >
+            Home
+          </button>
+          <button 
+            onClick={() => setView('surahs')}
+            className="text-sm font-medium text-stone-500 hover:text-emerald-700 dark:text-zinc-400 dark:hover:text-emerald-500 transition-colors"
+          >
+            Read
+          </button>
+          <button 
+            onClick={() => setView('themes')}
+            className="text-sm font-medium text-stone-500 hover:text-emerald-700 dark:text-zinc-400 dark:hover:text-emerald-500 transition-colors"
+          >
+            Themes
+          </button>
           <button 
             onClick={() => setDarkMode(!darkMode)}
             className="p-2 rounded-full hover:bg-stone-200 dark:hover:bg-zinc-800 transition-colors text-stone-500 dark:text-zinc-400"

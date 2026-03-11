@@ -38,6 +38,16 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
     fetchGraphData();
   }, []);
 
+  const fgRef = React.useRef<any>();
+
+  useEffect(() => {
+    if (fgRef.current && graphData.nodes.length > 0) {
+      setTimeout(() => {
+        fgRef.current.zoomToFit(400);
+      }, 500);
+    }
+  }, [graphData]);
+
   const handleNodeClick = (node: any) => {
     if (node.type === 'verse' && onOpenVerse) {
       const [surah, verse] = node.id.split(":").map(Number);
@@ -88,19 +98,42 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
           </div>
         ) : (
           <ForceGraph2D
+            ref={fgRef}
             graphData={graphData}
-            nodeLabel={(node: any) => node.id}
+            linkColor={() => "#334155"}
+            linkWidth={1.5}
+            linkDirectionalParticles={0}
+            d3AlphaDecay={0.03}
+            d3VelocityDecay={0.4}
+            nodeLabel={(node: any) => {
+              if (node.type === "theme") {
+                return `Theme: ${node.id}`;
+              }
+
+              if (node.type === "verse") {
+                const [surah, verse] = node.id.split(":");
+                return `Surah ${surah} : ${verse}`;
+              }
+
+              return node.id;
+            }}
             nodeColor={(node: any) => {
               if (node.id === selectedTheme) return "#22c55e";
               return node.type === "theme" ? "#10b981" : "#94a3b8";
             }}
-            nodeVal={(node: any) => node.type === "theme" ? 12 : 5}
+            nodeVal={(node: any) => node.type === "theme" ? 14 : 6}
             nodeCanvasObject={(node: any, ctx, globalScale) => {
-              const label = node.id;
-              const fontSize = node.type === "theme" ? 14 : 10;
+              let label = node.id;
+
+              if (node.type === "verse") {
+                const [surah, verse] = node.id.split(":");
+                label = `${surah}:${verse}`;
+              }
+
+              const fontSize = node.type === "theme" ? 16 : 11;
 
               ctx.font = `${fontSize / globalScale}px Sans-Serif`;
-              ctx.fillStyle = node.type === "theme" ? "#065f46" : "#334155";
+              ctx.fillStyle = node.type === "theme" ? "#065f46" : "#475569";
               ctx.textAlign = "center";
               ctx.fillText(label, node.x, node.y + 4);
             }}
@@ -108,7 +141,7 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
             enableNodeDrag={true}
             enableZoomInteraction={true}
             enablePanInteraction={true}
-            cooldownTicks={100}
+            cooldownTicks={150}
           />
         )}
       </div>
