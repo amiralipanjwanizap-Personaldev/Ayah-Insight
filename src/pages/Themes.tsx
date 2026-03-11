@@ -81,11 +81,11 @@ export default function Themes({ onBack, onExplore }: ThemesProps) {
           <div className="flex items-center gap-3">
             <Sparkles size={32} className="text-emerald-600 dark:text-emerald-500" />
             <h2 className="text-3xl font-serif font-bold text-stone-900 dark:text-stone-100">
-              Quranic Themes
+              Explore the Qur'an by Theme
             </h2>
           </div>
           <p className="text-stone-500 dark:text-zinc-400 mt-2">
-            AI-generated core concepts based on verse insights.
+            Discover verses connected through shared meaning.
           </p>
         </div>
       </div>
@@ -117,11 +117,17 @@ export default function Themes({ onBack, onExplore }: ThemesProps) {
             <button
               key={theme.id}
               onClick={() => onExplore && onExplore(theme.name)}
-              className="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-stone-200/60 dark:border-zinc-800 hover:border-emerald-300 dark:hover:border-emerald-700/50 transition-colors flex flex-col h-full group"
+              className="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-stone-200/60 dark:border-zinc-800 hover:border-emerald-300 dark:hover:border-emerald-700/50 hover:scale-[1.02] hover:shadow-lg transition-all duration-200 flex flex-col h-full group text-left"
             >
-              <h3 className="text-xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-3 group-hover:text-emerald-700 dark:group-hover:text-emerald-500 transition-colors">
-                {theme.name}
-              </h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xl font-serif font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-500 transition-colors">
+                  {theme.name}
+                </h3>
+                <span className="text-xs px-2 py-1 rounded-full bg-stone-100 dark:bg-zinc-800 text-stone-500 dark:text-zinc-400">
+                  verses
+                </span>
+              </div>
+              <div className="w-full h-px bg-stone-200 dark:bg-zinc-800 mb-3"></div>
               <p className="text-stone-600 dark:text-zinc-400 leading-relaxed flex-grow text-left">
                 {theme.description}
               </p>
