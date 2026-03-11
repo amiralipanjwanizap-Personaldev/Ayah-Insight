@@ -1,25 +1,25 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { registerSW } from 'virtual:pwa-register';
 import App from './App.tsx';
 import './index.css';
+
+// Register PWA service worker
+const updateSW = registerSW({
+  onNeedRefresh() {
+    // Optional: show a prompt to user to refresh
+  },
+  onOfflineReady() {
+    // Optional: show a message that app is ready for offline use
+  },
+});
 
 // Capture beforeinstallprompt globally to ensure we don't miss it
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   (window as any).deferredPrompt = e;
 });
-
-// Temporarily disabled service worker to debug blank screen issue
-/*
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(err => {
-      console.log("Service Worker registration failed: ", err);
-    });
-  });
-}
-*/
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
