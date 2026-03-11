@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote, Search, Bookmark, BookmarkCheck, PlayCircle } from 'lucide-react';
+import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, ArrowLeft, Moon, Sun, ArrowRight, MapPin, Quote, Search, Bookmark, BookmarkCheck, PlayCircle, Download, Share, X } from 'lucide-react';
 import InstallBanner from './components/InstallBanner';
 import Themes from './pages/Themes';
 import ExploreGraph from "./pages/ExploreGraph";
@@ -84,6 +84,53 @@ export default function App() {
       localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
+
+  // PWA Install State
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showIosPrompt, setShowIosPrompt] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone) {
+      setIsInstalled(true);
+    }
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    
+    if (isIos) {
+      setShowIosPrompt(true);
+      return;
+    }
+
+    if (!deferredPrompt) {
+      alert("Installation is not supported on this browser, or the app is already installed.");
+      return;
+    }
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+      setIsInstalled(true);
+    }
+  };
 
   // Scroll Management
   useEffect(() => {
@@ -252,6 +299,50 @@ export default function App() {
     <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 text-stone-900 dark:text-stone-100 font-sans transition-colors duration-300 selection:bg-emerald-500/30">
       <InstallBanner />
       
+      {/* iOS Install Prompt Modal */}
+      <AnimatePresence>
+        {showIosPrompt && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => setShowIosPrompt(false)}
+          >
+            <motion.div 
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-6 shadow-xl border border-stone-200 dark:border-zinc-800"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">Install on iOS</h3>
+                <button onClick={() => setShowIosPrompt(false)} className="p-2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="space-y-4 text-stone-600 dark:text-zinc-400">
+                <p>To install this app on your iPhone or iPad:</p>
+                <ol className="list-decimal list-inside space-y-3">
+                  <li className="flex items-center gap-2">
+                    Tap the <Share size={18} className="inline text-blue-500" /> Share button below.
+                  </li>
+                  <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+                  <li>Tap <strong>"Add"</strong> in the top right corner.</li>
+                </ol>
+              </div>
+              <button 
+                onClick={() => setShowIosPrompt(false)}
+                className="mt-6 w-full bg-stone-100 hover:bg-stone-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-stone-900 dark:text-stone-100 py-3 rounded-xl font-medium transition-colors"
+              >
+                Got it
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <header className="sticky top-0 z-20 bg-stone-50/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-stone-200/60 dark:border-zinc-800/60 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setView('home')}>
@@ -280,6 +371,14 @@ export default function App() {
           >
             Themes
           </button>
+          {!isInstalled && (
+            <button 
+              onClick={handleInstallClick}
+              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+            >
+              <Download size={14} /> <span className="hidden sm:inline">Install</span>
+            </button>
+          )}
           <button 
             onClick={() => setDarkMode(!darkMode)}
             className="p-2 rounded-full hover:bg-stone-200 dark:hover:bg-zinc-800 transition-colors text-stone-500 dark:text-zinc-400"
