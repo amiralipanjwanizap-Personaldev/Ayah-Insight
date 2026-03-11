@@ -63,7 +63,9 @@ export default async function handler(req, res) {
           verseSet.add(verseId);
           nodes.push({
             id: verseId,
-            type: 'verse'
+            type: 'verse',
+            surah: mapping.surah,
+            verse: mapping.verse
           });
         }
 
