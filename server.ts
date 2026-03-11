@@ -3,6 +3,8 @@ import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();
 
@@ -64,6 +66,20 @@ app.get("/api/search", async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// Dynamically load all API routes from the /api directory
+const apiDir = path.resolve('./api');
+if (fs.existsSync(apiDir)) {
+  const apiFiles = fs.readdirSync(apiDir).filter(file => file.endsWith('.ts'));
+  for (const file of apiFiles) {
+    const routeName = `/api/${file.replace('.ts', '')}`;
+    import(`./api/${file}`).then(module => {
+      if (module.default) {
+        app.all(routeName, module.default);
+      }
+    }).catch(err => console.error(`Failed to load API route ${routeName}:`, err));
+  }
+}
 
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
