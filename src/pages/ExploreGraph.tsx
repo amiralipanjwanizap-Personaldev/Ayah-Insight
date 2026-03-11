@@ -5,9 +5,10 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 interface ExploreGraphProps {
   onBack?: () => void;
   theme?: string | null;
+  onOpenVerse?: (surah: number, verse: number) => void;
 }
 
-export default function ExploreGraph({ onBack, theme }: ExploreGraphProps) {
+export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGraphProps) {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,10 +38,10 @@ export default function ExploreGraph({ onBack, theme }: ExploreGraphProps) {
     fetchGraphData();
   }, []);
 
-  // 7. When a verse node is clicked: console.log(node.id)
   const handleNodeClick = (node: any) => {
-    if (node.type === 'verse') {
-      console.log(node.id);
+    if (node.type === 'verse' && onOpenVerse) {
+      const [surah, verse] = node.id.split(":").map(Number);
+      onOpenVerse(surah, verse);
     }
   };
 
