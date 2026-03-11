@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ForceGraph2D from 'react-force-graph-2d';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
 interface ExploreGraphProps {
@@ -38,13 +37,6 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
     fetchGraphData();
   }, []);
 
-  const handleNodeClick = (node: any) => {
-    if (node.type === 'verse' && onOpenVerse) {
-      const [surah, verse] = node.id.split(":").map(Number);
-      onOpenVerse(surah, verse);
-    }
-  };
-
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -52,6 +44,10 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
       window.history.back();
     }
   };
+
+  const relatedVerses = graphData.links
+    .filter((link: any) => link.source === selectedTheme)
+    .map((link: any) => link.target);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -73,59 +69,50 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
         )}
       </div>
 
-      {/* 9. The graph container should use: height: 80vh */}
-      <div 
-        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-stone-200/60 dark:border-zinc-800 overflow-hidden w-full" 
-        style={{ height: '80vh' }}
-      >
-        {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="animate-spin text-emerald-600" size={40} />
-          </div>
-        ) : error ? (
-          <div className="flex items-center justify-center h-full text-red-500">
-            {error}
-          </div>
-        ) : (
-          <ForceGraph2D
-            graphData={graphData}
-            nodeLabel={(node: any) => node.id}
-            nodeColor={(node: any) => {
-              if (node.id === selectedTheme) return "#22c55e";
-              return node.type === "theme" ? "#10b981" : "#94a3b8";
-            }}
-            nodeVal={(node: any) => node.type === "theme" ? 12 : 5}
-            nodeCanvasObject={(node: any, ctx, globalScale) => {
-              const label = node.id;
-              const fontSize = node.type === "theme" ? 14 : 10;
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="animate-spin text-emerald-600" size={40} />
+        </div>
+      ) : error ? (
+        <div className="flex items-center justify-center h-64 text-red-500">
+          {error}
+        </div>
+      ) : (
+        <div className="grid gap-4 mt-8">
+          {relatedVerses.map((verseId: string) => {
+            const [surah, verse] = verseId.split(":");
 
-              ctx.font = `${fontSize / globalScale}px Sans-Serif`;
-              ctx.fillStyle = node.type === "theme" ? "#065f46" : "#334155";
-              ctx.textAlign = "center";
-              ctx.fillText(label, node.x, node.y + 4);
-            }}
-            linkCanvasObject={(link: any, ctx, globalScale) => {
-              const start = link.source;
-              const end = link.target;
-              
-              if (typeof start !== 'object' || typeof end !== 'object') return;
+            return (
+              <div
+                key={verseId}
+                className="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-stone-200 dark:border-zinc-800 flex justify-between items-center"
+              >
+                <div>
+                  <h3 className="text-lg font-serif font-bold text-stone-900 dark:text-stone-100">
+                    Surah {surah} : Verse {verse}
+                  </h3>
+                  <p className="text-sm text-stone-500 dark:text-zinc-400">
+                    Tap to open verse reader
+                  </p>
+                </div>
 
-              ctx.beginPath();
-              ctx.moveTo(start.x, start.y);
-              ctx.lineTo(end.x, end.y);
-              
-              ctx.strokeStyle = "rgba(16, 185, 129, 0.25)"; 
-              ctx.lineWidth = 1 / globalScale; 
-              ctx.stroke();
-            }}
-            onNodeClick={handleNodeClick}
-            enableNodeDrag={true}
-            enableZoomInteraction={true}
-            enablePanInteraction={true}
-            cooldownTicks={100}
-          />
-        )}
-      </div>
+                <button
+                  onClick={() => {
+                    if (onOpenVerse) onOpenVerse(Number(surah), Number(verse));
+                    const event = new CustomEvent("openVerse", {
+                      detail: { surah: Number(surah), verse: Number(verse) }
+                    });
+                    window.dispatchEvent(event);
+                  }}
+                  className="text-emerald-600 font-medium hover:underline"
+                >
+                  Open
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
