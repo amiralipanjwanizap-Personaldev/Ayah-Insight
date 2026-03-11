@@ -87,18 +87,24 @@ export default function ExploreGraph({ onBack, theme, onOpenVerse }: ExploreGrap
             {error}
           </div>
         ) : (
-          /* 5. Render graph using: <ForceGraph2D /> */
           <ForceGraph2D
             graphData={graphData}
-            /* 6. Node styling */
+            nodeLabel={(node: any) => node.id}
             nodeColor={(node: any) => {
-              if (node.id === selectedTheme) return '#22c55e';
-              return node.type === 'theme' ? '#10b981' : '#9ca3af';
+              if (node.id === selectedTheme) return "#22c55e";
+              return node.type === "theme" ? "#10b981" : "#94a3b8";
             }}
-            nodeVal={(node: any) => node.type === 'theme' ? 10 : 5} // size 10 for theme, 5 for verse
-            nodeLabel="id"
+            nodeVal={(node: any) => node.type === "theme" ? 12 : 5}
+            nodeCanvasObject={(node: any, ctx, globalScale) => {
+              const label = node.id;
+              const fontSize = node.type === "theme" ? 14 : 10;
+
+              ctx.font = `${fontSize / globalScale}px Sans-Serif`;
+              ctx.fillStyle = node.type === "theme" ? "#065f46" : "#334155";
+              ctx.textAlign = "center";
+              ctx.fillText(label, node.x, node.y + 4);
+            }}
             onNodeClick={handleNodeClick}
-            /* 8. Graph must support mobile: drag nodes, pinch zoom, tap nodes */
             enableNodeDrag={true}
             enableZoomInteraction={true}
             enablePanInteraction={true}
