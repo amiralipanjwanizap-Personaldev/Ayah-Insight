@@ -42,6 +42,7 @@ export default async function handler(req, res) {
       const { data: insights, error: insightsError } = await supabase
         .from('verse_insights')
         .select('surah, verse, historical_context, modern_reflection, illustrative_story, ahlulbayt_hadith')
+        .order('surah', { ascending: false })
         .range(offset, offset + limit - 1);
 
       if (insightsError || !insights || insights.length === 0) {
