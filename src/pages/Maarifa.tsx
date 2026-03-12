@@ -99,9 +99,13 @@ export default function Maarifa({ onOpenVerse }: MaarifaProps) {
 
         {!loading && results.map((result, idx) => {
           // Fallback if the API returns source_title instead of surah/verse directly
-          const surah = result.surah || 1;
-          const verse = result.verse || 1;
-          const title = result.source_title ? result.source_title : `Surah: ${surah}:${verse}`;
+          const surah = result.surah;
+          const verse = result.verse;
+          const title = result.source_title
+            ? result.source_title
+            : surah && verse
+            ? `Surah ${surah}:${verse}`
+            : "Tafsir passage";
           const similarity = result.similarity ?? result.similarity_score ?? 0;
           
           return (
@@ -127,12 +131,18 @@ export default function Maarifa({ onOpenVerse }: MaarifaProps) {
               </p>
               
               <div className="flex justify-end">
-                <button
-                  onClick={() => onOpenVerse(surah, verse)}
-                  className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
-                >
-                  <BookOpen size={16} /> Open Verse <ChevronRight size={16} />
-                </button>
+                {surah && verse ? (
+                  <button
+                    onClick={() => onOpenVerse(surah, verse)}
+                    className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                  >
+                    <BookOpen size={16} /> Open Verse <ChevronRight size={16} />
+                  </button>
+                ) : (
+                  <span className="text-sm font-medium text-stone-500 dark:text-zinc-500 italic">
+                    Verse reference unavailable
+                  </span>
+                )}
               </div>
             </div>
           );
