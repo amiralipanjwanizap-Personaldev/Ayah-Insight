@@ -4,6 +4,7 @@ import { Book, ChevronRight, Loader2, Sparkles, History, Lightbulb, BookOpen, Ar
 import InstallBanner from './components/InstallBanner';
 import Themes from './pages/Themes';
 import ExploreGraph from "./pages/ExploreGraph";
+import Maarifa from './pages/Maarifa';
 
 interface Surah {
   number: number;
@@ -45,7 +46,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   
   // Navigation State
-  const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites' | 'themes' | 'explore'>('home');
+  const [view, setView] = useState<'home' | 'surahs' | 'verses' | 'reader' | 'favorites' | 'themes' | 'explore' | 'maarifa'>('home');
   const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
   const [activeVerseNum, setActiveVerseNum] = useState<number | null>(null);
   
@@ -385,6 +386,12 @@ export default function App() {
             className="text-sm font-medium text-stone-500 hover:text-emerald-700 dark:text-zinc-400 dark:hover:text-emerald-500 transition-colors"
           >
             Themes
+          </button>
+          <button 
+            onClick={() => setView('maarifa')}
+            className="text-sm font-medium text-stone-500 hover:text-emerald-700 dark:text-zinc-400 dark:hover:text-emerald-500 transition-colors"
+          >
+            Maarifa
           </button>
           {!isInstalled && (
             <button 
@@ -891,6 +898,15 @@ export default function App() {
             <ExploreGraph
               onBack={() => setView('themes')}
               theme={selectedTheme}
+              onOpenVerse={(surah, verse) => {
+                jumpToVerse(surah, verse);
+              }}
+            />
+          )}
+
+          {/* PAGE 7: MAARIFA */}
+          {view === 'maarifa' && (
+            <Maarifa
               onOpenVerse={(surah, verse) => {
                 jumpToVerse(surah, verse);
               }}
