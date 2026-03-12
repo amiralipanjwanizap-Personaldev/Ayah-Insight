@@ -1,5 +1,5 @@
-const { createClient } = require('@supabase/supabase-js');
-const { OpenAI } = require('openai');
+import { createClient } from "@supabase/supabase-js";
+import OpenAI from "openai";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -14,7 +14,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-module.exports = async (req, res) => {
+export default async function handler(req: any, res: any) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed. Use POST.' });
@@ -60,4 +60,4 @@ module.exports = async (req, res) => {
     console.error('Maarifa search error:', error);
     return res.status(500).json({ error: 'Internal server error.' });
   }
-};
+}
